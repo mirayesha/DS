@@ -73,35 +73,91 @@ void postOrder(node *root)
 }
 
 
-bool binarySearch(node* root, int val)
+node* binarySearch(node* root, int val)
 {
     if(root == NULL)
     {
-        return false;
+        return NULL;
     }
+
+    if(root->val == val)
+    {
+        return root;
+    }
+
     if(root->val < val)
     return binarySearch(root->right, val);
 
     if(root->val > val)
     return binarySearch(root->left, val);
 
-    else
-    return true;
+}
+
+node* subtreeFirst(node* root)//first node in inorder traversal
+{
+    if(root->left == NULL)
+    {
+        return root;
+    }
+    while(root->left != NULL)
+    {
+        root = root->left;
+    }
+    return root;
+}
+node* deletion(node* root, int val)//deletion using successor logic
+{
+    if(root == NULL)
+    return NULL;
+
+    if(val < root->val)
+    root->left = deletion(root->left, val);
+
+    if(val > root->val)
+    root->right = deletion(root->right, val);
+
+    if(root->val == val)
+    {
+        if(root->left == NULL && root->right == NULL)
+        {
+            free(root);
+            return NULL;
+        }
+        if(root->left == NULL)
+        {
+            node* temp = root->right;
+            free(root);
+            return temp;
+        }
+        if(root->right == NULL)
+        {
+            node *temp = root->left;
+            free(root);
+            return temp;
+        }
+        else
+        {
+            node* temp = subtreeFirst(root->right);
+            root->val = temp->val;
+            root->right = deletion(root->right, temp->val);
+        }
+    }
+    return root;
 }
 
 int main(void)
 {
     node *root = NULL;
-    root = create(50);
-    root = insert(root, 10);
-    root = insert(root, 30);
-    root = insert(root, 60);
+    root = create(17);
+    root = insert(root, 7);
+    root = insert(root, 23);
+    root = insert(root, 19);
+    root = insert(root, 1);
+    root = insert(root, 12);
     printf("In Order Travesal: ");
     inOrder(root);
-    printf("\nPre Order Traversal: ");
-    preOrder(root);
-    printf("\nPost Order Traversal: ");
-    postOrder(root);
-    printf("\nis 30 in the tree? %s", binarySearch(root, 90) ? "yes" : "no");
+    root = deletion(root, 17);
+    printf("\nIn Order Travesal: ");
+    inOrder(root);
 }
 
